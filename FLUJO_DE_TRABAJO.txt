@@ -1,0 +1,102 @@
+=========================================================
+  FLUJO DE TRABAJO - Script IPs Maliciosas 2026
+=========================================================
+
+---------------------------------------------------------
+PRIMERA VEZ EN UN EQUIPO NUEVO
+---------------------------------------------------------
+1. Clonar el repositorio:
+   git clone https://github.com/alejolac/Script-IPs-Maliciosas---2026.git
+
+2. Entrar a la carpeta:
+   cd Script-IPs-Maliciosas---2026
+
+3. Instalar dependencias:
+   pip install -r requirements.txt
+
+4. Crear el archivo .env con las credenciales:
+   - Copiar .env.example y renombrarlo a .env
+   - Completar ABUSEIPDB_API_KEY con la API key real
+   - Completar SECRET_KEY con cualquier clave secreta
+
+5. Cargar la base de datos desde el backup del repo:
+   python import_db.py
+
+6. Iniciar la aplicacion:
+   python app.py
+
+
+---------------------------------------------------------
+USO SEMANAL (subir CSV y actualizar la DB)
+---------------------------------------------------------
+1. Asegurarse de tener los ultimos datos antes de trabajar:
+   git pull
+   python import_db.py
+
+2. Iniciar la aplicacion:
+   python app.py
+
+3. Entrar a http://127.0.0.1:5000 y subir el CSV semanal.
+
+4. Una vez procesado, exportar y subir la DB actualizada:
+   python export_db.py
+   git add db_backup.sql
+   git commit -m "db semana XX"
+   git push
+
+
+---------------------------------------------------------
+SINCRONIZAR ENTRE DOS EQUIPOS
+---------------------------------------------------------
+La base de datos (.db) es un archivo binario que no puede
+subirse directamente a GitHub sin generar conflictos.
+En su lugar se usa db_backup.sql, un archivo de texto con
+todos los datos, que si puede commitearse y mergearse.
+
+  export_db.py  ->  convierte el .db a db_backup.sql (texto)
+  import_db.py  ->  recrea el .db desde db_backup.sql
+
+REGLA: siempre hacer git pull + import_db.py ANTES de
+trabajar, y export_db.py + git push DESPUES de trabajar.
+
+
+---------------------------------------------------------
+ARCHIVOS IMPORTANTES
+---------------------------------------------------------
+  app.py              Servidor web Flask
+  scoring.json        Configuracion de puntuacion del Top 10
+                      (editable sin tocar el codigo)
+  db_backup.sql       Backup de la base de datos (va a GitHub)
+  ips_maliciosas.db   Base de datos local (NO va a GitHub)
+  export_db.py        Exporta la DB a db_backup.sql
+  import_db.py        Recrea la DB desde db_backup.sql
+  requirements.txt    Dependencias de Python
+  .env                Credenciales (NO va a GitHub)
+  .env.example        Plantilla del .env (si va a GitHub)
+
+
+---------------------------------------------------------
+TOP 10 - LOGICA DE SCORING
+---------------------------------------------------------
+El Top 10 se genera automaticamente al subir cada CSV.
+Solo incluye IPs vistas en los ultimos 21 dias.
+
+Puntaje por factor (configurable en scoring.json):
+
+  Actividad reciente (intentos esta semana):
+    9 o mas intentos  -> 50 puntos
+    5 o mas intentos  -> 30 puntos
+    1 o mas intentos  -> 10 puntos
+
+  Reputacion AbuseIPDB (reportes historicos):
+    1500 o mas        -> 40 puntos
+    500 o mas         -> 25 puntos
+    100 o mas         -> 15 puntos
+
+  Recencia (ultima vez vista):
+    Hace 7 dias o menos  -> 20 puntos
+    Hace 21 dias o menos -> 10 puntos
+
+  Puntaje maximo posible: 110 puntos
+
+=========================================================
