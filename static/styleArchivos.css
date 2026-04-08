@@ -1,0 +1,94 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f9f9f9;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    max-width: 600px;
+    margin: 50px auto;
+    padding: 20px;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    text-align: center;
+}
+
+.header img {
+    max-width: 150px; /* Tamaño máximo del logo */
+}
+
+h1 {
+    color: #0073b1; /* Ceibal blue */
+    text-align: center;
+}
+
+.form-group {
+    margin: 20px 0;
+}
+
+.inputfile {
+    width: 0.1px;
+    height: 0.1px;
+    opacity: 0;
+    overflow: hidden;
+    position: absolute;
+    z-index: -1;
+}
+
+.upload-label {
+    font-size: 16px;
+    color: #0073b1;
+    background-color: #e1f5fe;
+    border: 2px solid #0073b1;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+}
+
+.upload-label:hover {
+    background-color: #b3e5fc;
+}
+
+.submit-btn {
+    background-color: #0073b1; /* Ceibal blue */
+    color: #fff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 4px;
+    cursor: pointer;
+    display: block;
+    margin: 20px auto;
+}
+
+.submit-btn:hover {
+    background-color: #005a8c; /* Darker blue */
+}
+
+.file-name {
+    display: block;
+    margin-top: 10px;
+    font-style: italic;
+}
+
+.processing-message {
+    display: none;
+    color: blue;
+    text-align: center;
+}
+
+.back-link {
+    display: block;
+    text-align: center;
+    margin-top: 20px;
+    color: #0073b1; /* Ceibal blue */
+    text-decoration: none;
+}
+
+.back-link:hover {
+    text-decoration: underline;
+}

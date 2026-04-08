@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buscar IP - IPs maliciosas TM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styleCargaArchivos.css') }}">
+    <style>
+        .tab-nav { display:flex; gap:4px; margin:20px 0 0; border-bottom:2px solid #0073b1; }
+        .tab-nav a { padding:8px 20px; text-decoration:none; color:#0073b1; border:1px solid #0073b1; border-bottom:none; border-radius:4px 4px 0 0; font-weight:500; font-size:14px; }
+        .tab-nav a.active { background:#0073b1; color:#fff; }
+        .tab-nav a:hover:not(.active) { background:#e8f4fc; }
+        body { height:auto; align-items:flex-start; padding:40px 20px; }
+        .container { max-width:700px; }
+        .search-form { display:flex; gap:8px; margin-top:20px; }
+        .search-form input[type="text"] { flex:1; padding:9px 14px; border:1px solid #0073b1; border-radius:4px; font-size:15px; outline:none; }
+        .search-form input[type="text"]:focus { border-color:#005a8e; box-shadow:0 0 0 2px #cce4f3; }
+        .search-form button { padding:9px 22px; background:#0073b1; color:#fff; border:none; border-radius:4px; font-size:15px; cursor:pointer; font-weight:500; }
+        .search-form button:hover { background:#005a8e; }
+        .result-card { margin-top:28px; border:1px solid #d0e8f5; border-radius:6px; overflow:hidden; }
+        .result-card .card-header { background:#0073b1; color:#fff; padding:10px 16px; font-weight:700; font-size:15px; }
+        .result-card table { width:100%; border-collapse:collapse; }
+        .result-card td { padding:10px 16px; border-bottom:1px solid #eee; font-size:14px; }
+        .result-card td:first-child { font-weight:600; color:#444; width:220px; background:#f7fbff; }
+        .result-card tr:last-child td { border-bottom:none; }
+        .not-found { margin-top:24px; padding:14px 16px; background:#fff3cd; border:1px solid #ffc107; border-radius:5px; color:#856404; }
+    </style>
+</head>
+<body class="hidden">
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='logo_ceibal.jpg') }}" alt="Logo de Ceibal">
+        </div>
+        <h1>Seguridad de la informacion</h1>
+        <nav class="tab-nav">
+            <a href="{{ url_for('home') }}">Inicio</a>
+            <a href="{{ url_for('upload_file') }}">Subir CSV</a>
+            <a href="{{ url_for('ver_top10') }}">Top 10</a>
+            <a href="{{ url_for('buscar_ip') }}" class="active">Buscar IP</a>
+        </nav>
+
+        <h2>Buscar IP en el historial</h2>
+        <form class="search-form" method="get" action="{{ url_for('buscar_ip') }}">
+            <input type="text" name="ip" placeholder="Ej: 192.168.1.1" value="{{ ip_query }}" autocomplete="off" spellcheck="false">
+            <button type="submit">Buscar</button>
+        </form>
+
+        {% if ip_query %}
+            {% if resultado %}
+            <div class="result-card">
+                <div class="card-header">{{ resultado.ip }}</div>
+                <table>
+                    <tr><td>Total Intentos Histórico</td><td>{{ resultado.total_intentos }}</td></tr>
+                    <tr><td>Reportes AbuseIPDB</td><td>{{ resultado.abuse_score }}</td></tr>
+                    <tr><td>Confianza AbuseIPDB (%)</td><td>{{ resultado.confidence_score }}%</td></tr>
+                    <tr><td>Primer Visto</td><td>{{ resultado.first_seen }}</td></tr>
+                    <tr><td>Último Visto</td><td>{{ resultado.last_seen }}</td></tr>
+                </table>
+            </div>
+            {% else %}
+            <div class="not-found">
+                La IP <strong>{{ ip_query }}</strong> no se encuentra en el historial.
+            </div>
+            {% endif %}
+        {% endif %}
+    </div>
+    <script>
+        document.body.classList.remove('hidden');
+        console.log("IPs Maliciosas - API key AbuseIPDB v2026");
+    </script>
+</body>
+</html>

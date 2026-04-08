@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Top 10 IPs - IPs maliciosas TM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styleCargaArchivos.css') }}">
+    <style>
+        .tab-nav { display:flex; gap:4px; margin:20px 0 0; border-bottom:2px solid #0073b1; }
+        .tab-nav a { padding:8px 20px; text-decoration:none; color:#0073b1; border:1px solid #0073b1; border-bottom:none; border-radius:4px 4px 0 0; font-weight:500; font-size:14px; }
+        .tab-nav a.active { background:#0073b1; color:#fff; }
+        .tab-nav a:hover:not(.active) { background:#e8f4fc; }
+        body { height:auto; align-items:flex-start; padding:40px 20px; }
+        .container { max-width:1100px; }
+        table { width:100%; border-collapse:collapse; margin-top:20px; font-size:14px; }
+        th { background-color:#0073b1; color:#fff; padding:10px; text-align:left; }
+        td { padding:8px 10px; border-bottom:1px solid #ddd; text-align:left; }
+        tr:nth-child(even) { background-color:#f2f2f2; }
+        .rank { font-weight:700; color:#0073b1; text-align:center; width:40px; }
+        .score-badge { display:inline-block; background:#0073b1; color:#fff; border-radius:12px; padding:2px 10px; font-weight:700; }
+        .empty-msg { margin-top:30px; color:#666; font-style:italic; }
+        .info-box { background:#e8f4fc; border-left:4px solid #0073b1; padding:10px 14px; margin-top:20px; border-radius:0 4px 4px 0; font-size:13px; color:#333; }
+    </style>
+</head>
+<body class="hidden">
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='logo_ceibal.jpg') }}" alt="Logo de Ceibal">
+        </div>
+        <h1>Seguridad de la informacion</h1>
+        <nav class="tab-nav">
+            <a href="{{ url_for('home') }}">Inicio</a>
+            <a href="{{ url_for('upload_file') }}">Subir CSV</a>
+            <a href="{{ url_for('ver_top10') }}" class="active">Top 10</a>
+            <a href="{{ url_for('buscar_ip') }}">Buscar IP</a>
+        </nav>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div style="background:#f8d7da;border:1px solid #f5c6cb;color:#721c24;padding:10px 14px;border-radius:5px;margin-top:16px;">
+            {% for msg in messages %}<p style="margin:0">{{ msg }}</p>{% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+
+        <div class="info-box">
+            <strong>TOP10 de IPs urgentes a bloquear.</strong><br>
+            <strong>Prioridad (score combinado):</strong><br>
+            1: Actividad reciente — 9 o más intentos esta semana<br>
+            2: Reputación — 1500 o más reportes en AbuseIPDB<br>
+            3: Recencia — vista hace 7 días o menos<br>
+            <em>Solo se incluyen IPs vistas en los últimos 21 días. El score combina actividad semanal, historial acumulado y reputación externa.</em>
+        </div>
+
+        {% if resultados %}
+        <h2>Top 10 IPs más peligrosas</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:40px;">#</th>
+                    <th>IP</th>
+                    <th>Score</th>
+                    <th>Total Intentos Histórico</th>
+                    <th>Reportes AbuseIPDB</th>
+                    <th>Confianza AbuseIPDB (%)</th>
+                    <th>Último Visto</th>
+                    <th>Primer Visto</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for r in resultados %}
+                <tr>
+                    <td class="rank">{{ loop.index }}</td>
+                    <td><strong>{{ r["IP"] }}</strong></td>
+                    <td><span class="score-badge">{{ r["Score"] }}</span></td>
+                    <td>{{ r["Total Intentos Histórico"] }}</td>
+                    <td>{{ r["Reportes AbuseIPDB"] }}</td>
+                    <td>{{ r["Confianza AbuseIPDB (%)"] }}%</td>
+                    <td>{{ r["Último Visto"] }}</td>
+                    <td>{{ r["Primer Visto"] }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <p class="empty-msg">No hay datos disponibles. Subí un CSV para generar el Top 10.</p>
+        {% endif %}
+    </div>
+    <script>
+        document.body.classList.remove('hidden');
+        console.log("IPs Maliciosas - API key AbuseIPDB v2026");
+    </script>
+</body>
+</html>

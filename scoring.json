@@ -1,0 +1,18 @@
+{
+  "max_days": 21,
+  "actividad_reciente": [
+    {"min": 9, "points": 50},
+    {"min": 5, "points": 30},
+    {"min": 1, "points": 10}
+  ],
+  "abuse_reports": [
+    {"min": 1500, "points": 40},
+    {"min": 500, "points": 25},
+    {"min": 100, "points": 15},
+    {"min": 0, "points": 0}
+  ],
+  "recencia_dias": [
+    {"max_days": 7, "points": 20},
+    {"max_days": 21, "points": 10}
+  ]
+}

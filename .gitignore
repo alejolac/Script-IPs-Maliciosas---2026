@@ -1,0 +1,20 @@
+# Variables de entorno y secretos
+.env
+
+# Cache de Python
+__pycache__/
+*.pyc
+*.pyo
+
+# Archivos CSV subidos y generados
+archivos_CSV/
+reportes_CSV/
+
+# Base de datos local (usar db_backup.sql para sincronizar entre equipos)
+ips_maliciosas.db
+
+# Archivos generados por la app
+top10_ips.csv
+
+# Claude Code
+.claude/

@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir CSV - IPs maliciosas TM</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styleArchivos.css') }}">
+    <style>
+        .tab-nav { display:flex; gap:4px; margin:20px 0 0; border-bottom:2px solid #0073b1; }
+        .tab-nav a { padding:8px 20px; text-decoration:none; color:#0073b1; border:1px solid #0073b1; border-bottom:none; border-radius:4px 4px 0 0; font-weight:500; font-size:14px; }
+        .tab-nav a.active { background:#0073b1; color:#fff; }
+        .tab-nav a:hover:not(.active) { background:#e8f4fc; }
+        .processing-message {
+            display: none;
+            color: blue;
+        }
+    </style>
+</head>
+<body class="hidden">
+    <div class="container">
+        <div class="header">
+            <img src="{{ url_for('static', filename='logo_ceibal.jpg') }}" alt="Logo de Ceibal">
+        </div>
+        <nav class="tab-nav">
+            <a href="{{ url_for('home') }}">Inicio</a>
+            <a href="{{ url_for('upload_file') }}" class="active">Subir CSV</a>
+            <a href="{{ url_for('ver_top10') }}">Top 10</a>
+            <a href="{{ url_for('buscar_ip') }}">Buscar IP</a>
+        </nav>
+
+        <h1>Seleccionar el archivo CSV a subir</h1>
+
+        {% with messages = get_flashed_messages() %}
+        {% if messages %}
+        <div style="background:#f8d7da;border:1px solid #f5c6cb;color:#721c24;padding:10px 14px;border-radius:5px;margin-bottom:16px;">
+            {% for msg in messages %}<p style="margin:0">{{ msg }}</p>{% endfor %}
+        </div>
+        {% endif %}
+        {% endwith %}
+        <form method="post" enctype="multipart/form-data" id="uploadForm">
+            <div class="form-group">
+                <input type="file" name="file" id="file" class="inputfile" accept=".csv" required>
+                <label for="file" class="upload-label">Seleccionar archivo</label>
+            </div>
+            <input type="submit" value="Subir" class="submit-btn">
+        </form>
+        <span id="file-name" class="file-name"></span>
+        <p id="processingMessage" class="processing-message">Procesando el archivo...</p>
+        <a href="{{ url_for('home') }}" class="back-link">Volver a la página principal</a>
+    </div>
+
+    <script>
+        document.body.classList.remove('hidden');
+        console.log("IPs Maliciosas - API key AbuseIPDB v2026");
+
+        document.getElementById('file').addEventListener('change', function() {
+            var fileName = this.files[0].name;
+            document.getElementById('file-name').textContent = 'Archivo seleccionado: ' + fileName;
+        });
+        
+        document.getElementById('uploadForm').onsubmit = function() {
+            document.getElementById('processingMessage').style.display = 'block';
+        };
+
+    </script>
+</body>
+</html>
