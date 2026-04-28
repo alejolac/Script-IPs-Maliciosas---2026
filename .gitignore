@@ -15,6 +15,10 @@ ips_maliciosas.db
 
 # Archivos generados por la app
 top10_ips.csv
+top10_ips_high.csv
+top10_ips_mid.csv
+top10_ips_low.csv
+top10_ips_global.csv
 
 # Claude Code
 .claude/

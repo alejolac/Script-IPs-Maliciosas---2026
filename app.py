@@ -17,6 +17,8 @@ app.config['ALLOWED_EXTENSIONS'] = {'csv'}
 _BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 _LAST_RESULTADO = os.path.join(_BASE_DIR, 'reportes_CSV', 'last_resultado.json')
 
+VALID_CATEGORIES = ('high', 'mid', 'low')
+
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in app.config['ALLOWED_EXTENSIONS']
@@ -41,18 +43,21 @@ def upload_file():
             return redirect(request.url)
 
         if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+            file.save(filepath)
             try:
-                filename = secure_filename(file.filename)
-                filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-                file.save(filepath)
-
                 resultados, api_agotada = calcular_Indicador(filepath)
 
                 if resultados or api_agotada:
-                    # PRG: guardar resultado y redirigir a GET para evitar re-procesado con F5
+                    categories = sorted({r['Categoría'].lower() for r in (resultados or [])})
                     os.makedirs(os.path.dirname(_LAST_RESULTADO), exist_ok=True)
                     with open(_LAST_RESULTADO, 'w', encoding='utf-8') as f:
-                        json.dump({'resultados': resultados or [], 'api_agotada': api_agotada}, f)
+                        json.dump({
+                            'resultados': resultados or [],
+                            'api_agotada': api_agotada,
+                            'categories': categories,
+                        }, f)
                     flash('Archivo procesado correctamente.')
                     return redirect(url_for('ver_resultados'))
                 else:
@@ -60,6 +65,9 @@ def upload_file():
             except Exception as e:
                 flash(f'Ocurrió un error al procesar el archivo: {e}')
                 return redirect(request.url)
+            finally:
+                if os.path.exists(filepath):
+                    os.remove(filepath)
         else:
             flash('El archivo debe tener una extensión .csv válida.')
             return redirect(request.url)
@@ -71,37 +79,48 @@ def upload_file():
 def ver_resultados():
     resultados = []
     api_agotada = False
+    categories = []
     if os.path.exists(_LAST_RESULTADO):
         try:
             with open(_LAST_RESULTADO, encoding='utf-8') as f:
                 data = json.load(f)
             resultados = data.get('resultados', [])
             api_agotada = data.get('api_agotada', False)
+            # compatibilidad con formato anterior que guardaba 'category' singular
+            categories = data.get('categories') or ([data['category']] if data.get('category') else [])
         except Exception:
             pass
-    return render_template('index.html', resultados=resultados, api_agotada=api_agotada)
+    return render_template('index.html', resultados=resultados, api_agotada=api_agotada, categories=categories)
 
 
 @app.route('/top10')
 def ver_top10():
-    top10_path = os.path.join(_BASE_DIR, 'top10_ips.csv')
-    resultados = []
-    if os.path.exists(top10_path):
-        try:
-            df = pd.read_csv(top10_path)
-            resultados = df.to_dict(orient='records')
-        except Exception as e:
-            flash(f'Error al leer el Top 10: {e}')
-    return render_template('top10.html', resultados=resultados)
+    tops = {}
+    for cat in list(VALID_CATEGORIES) + ['global']:
+        path = os.path.join(_BASE_DIR, f'top10_ips_{cat}.csv')
+        if os.path.exists(path):
+            try:
+                tops[cat] = pd.read_csv(path).to_dict(orient='records')
+            except Exception as e:
+                flash(f'Error al leer el Top 10 [{cat}]: {e}')
+                tops[cat] = []
+        else:
+            tops[cat] = []
+
+    active_tab = request.args.get('cat', 'global')
+    if active_tab not in list(VALID_CATEGORIES) + ['global']:
+        active_tab = 'global'
+
+    return render_template('top10.html', tops=tops, active_tab=active_tab)
 
 
 @app.route('/buscar')
 def buscar_ip():
     ip_query = request.args.get('ip', '').strip()
-    resultado = None
+    resultados = []
     if ip_query:
-        resultado = db_manager.get_ip(ip_query)
-    return render_template('buscar.html', ip_query=ip_query, resultado=resultado)
+        resultados = db_manager.get_ip(ip_query)
+    return render_template('buscar.html', ip_query=ip_query, resultados=resultados)
 
 
 if __name__ == '__main__':

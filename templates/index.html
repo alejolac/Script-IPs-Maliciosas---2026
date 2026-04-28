@@ -69,12 +69,16 @@
 
         {% if resultados %}
         <div id="resultados">
-            <h2>IPs con reportes de abuso ({{ resultados | length }})</h2>
+            <h2>IPs con reportes de abuso
+                {% if categories %}— Alertas {{ categories | join(', ') | title }}{% endif %}
+                ({{ resultados | length }})
+            </h2>
             <table>
                 <thead>
                     <tr>
                         <th>Maquina Virtual</th>
                         <th>IP</th>
+                        <th>Categoría</th>
                         <th>Repeticiones en CSV</th>
                         <th>Reportes AbuseIPDB</th>
                         <th>Primer Reporte</th>
@@ -85,6 +89,7 @@
                     <tr>
                         <td>{{ r["Maquina Virtual"] }}</td>
                         <td>{{ r["IP"] }}</td>
+                        <td>{{ r["Categoría"] }}</td>
                         <td>{{ r["Repeticiones en CSV"] }}</td>
                         <td>{{ r["Número de Reportes AbuseIPDB"] }}</td>
                         <td>{{ r["Primer Reporte"] }}</td>

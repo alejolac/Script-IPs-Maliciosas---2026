@@ -13,13 +13,68 @@
         body { height:auto; align-items:flex-start; padding:40px 20px; }
         .container { max-width:1100px; }
         table { width:100%; border-collapse:collapse; margin-top:20px; font-size:14px; }
-        th { background-color:#0073b1; color:#fff; padding:10px; text-align:left; }
+        th { color:#fff; padding:10px; text-align:left; }
         td { padding:8px 10px; border-bottom:1px solid #ddd; text-align:left; }
         tr:nth-child(even) { background-color:#f2f2f2; }
-        .rank { font-weight:700; color:#0073b1; text-align:center; width:40px; }
-        .score-badge { display:inline-block; background:#0073b1; color:#fff; border-radius:12px; padding:2px 10px; font-weight:700; }
+        .rank { font-weight:700; text-align:center; width:40px; }
+        .score-badge { display:inline-block; color:#fff; border-radius:12px; padding:2px 10px; font-weight:700; }
         .empty-msg { margin-top:30px; color:#666; font-style:italic; }
-        .info-box { background:#e8f4fc; border-left:4px solid #0073b1; padding:10px 14px; margin-top:20px; border-radius:0 4px 4px 0; font-size:13px; color:#333; }
+        .info-box { border-left:4px solid; padding:10px 14px; margin-top:20px; border-radius:0 4px 4px 0; font-size:13px; color:#333; }
+
+        /* Tabs de categoría */
+        .cat-tabs { display:flex; gap:0; margin-top:24px; }
+        .cat-tab {
+            padding:9px 28px;
+            cursor:pointer;
+            font-weight:600;
+            font-size:14px;
+            border:2px solid #ccc;
+            border-bottom:none;
+            border-radius:6px 6px 0 0;
+            background:#f5f5f5;
+            color:#555;
+            margin-right:4px;
+            transition:all 0.15s;
+        }
+        .cat-tab.high { border-color:#dc3545; }
+        .cat-tab.high.active { background:#dc3545; color:#fff; }
+        .cat-tab.mid { border-color:#fd7e14; }
+        .cat-tab.mid.active { background:#fd7e14; color:#fff; }
+        .cat-tab.low { border-color:#198754; }
+        .cat-tab.low.active { background:#198754; color:#fff; }
+        .cat-tab.global { border-color:#6f42c1; }
+        .cat-tab.global.active { background:#6f42c1; color:#fff; }
+
+        .cat-panel { display:none; border-top:3px solid #ccc; padding-top:4px; }
+        .cat-panel.high { border-color:#dc3545; }
+        .cat-panel.mid { border-color:#fd7e14; }
+        .cat-panel.low { border-color:#198754; }
+        .cat-panel.global { border-color:#6f42c1; }
+        .cat-panel.active { display:block; }
+
+        .th-high { background:#dc3545; }
+        .th-mid  { background:#fd7e14; }
+        .th-low  { background:#198754; }
+        .th-global { background:#6f42c1; }
+        .rank-high { color:#dc3545; }
+        .rank-mid  { color:#fd7e14; }
+        .rank-low  { color:#198754; }
+        .rank-global { color:#6f42c1; }
+        .badge-high { background:#dc3545; }
+        .badge-mid  { background:#fd7e14; }
+        .badge-low  { background:#198754; }
+        .badge-global { background:#6f42c1; }
+        .info-high { background:#fdf0f1; border-color:#dc3545; }
+        .info-mid  { background:#fff8f0; border-color:#fd7e14; }
+        .info-low  { background:#f0faf4; border-color:#198754; }
+        .info-global { background:#f5f0ff; border-color:#6f42c1; }
+        .cat-badge {
+            display:inline-block; font-size:11px; font-weight:700;
+            border-radius:4px; padding:1px 6px; margin-right:3px; color:#fff;
+        }
+        .cat-badge-high { background:#dc3545; }
+        .cat-badge-mid  { background:#fd7e14; }
+        .cat-badge-low  { background:#198754; }
     </style>
 </head>
 <body class="hidden">
@@ -43,52 +98,123 @@
         {% endif %}
         {% endwith %}
 
-        <div class="info-box">
-            <strong>TOP10 de IPs urgentes a bloquear.</strong><br>
-            <strong>Prioridad (score combinado):</strong><br>
-            1: Actividad reciente — 9 o más intentos esta semana<br>
-            2: Reputación — 1500 o más reportes en AbuseIPDB<br>
-            3: Recencia — vista hace 7 días o menos<br>
-            <em>Solo se incluyen IPs vistas en los últimos 21 días. El score combina actividad semanal, historial acumulado y reputación externa.</em>
+        <div class="cat-tabs">
+            <div class="cat-tab global {% if active_tab == 'global' %}active{% endif %}" onclick="switchTab('global')">Global</div>
+            <div class="cat-tab high   {% if active_tab == 'high'   %}active{% endif %}" onclick="switchTab('high')">High</div>
+            <div class="cat-tab mid    {% if active_tab == 'mid'    %}active{% endif %}" onclick="switchTab('mid')">Mid</div>
+            <div class="cat-tab low    {% if active_tab == 'low'    %}active{% endif %}" onclick="switchTab('low')">Low</div>
         </div>
 
-        {% if resultados %}
-        <h2>Top 10 IPs más peligrosas</h2>
-        <table>
-            <thead>
-                <tr>
-                    <th style="width:40px;">#</th>
-                    <th>IP</th>
-                    <th>Score</th>
-                    <th>Total Intentos Histórico</th>
-                    <th>Reportes AbuseIPDB</th>
-                    <th>Confianza AbuseIPDB (%)</th>
-                    <th>Último Visto</th>
-                    <th>Primer Visto</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for r in resultados %}
-                <tr>
-                    <td class="rank">{{ loop.index }}</td>
-                    <td><strong>{{ r["IP"] }}</strong></td>
-                    <td><span class="score-badge">{{ r["Score"] }}</span></td>
-                    <td>{{ r["Total Intentos Histórico"] }}</td>
-                    <td>{{ r["Reportes AbuseIPDB"] }}</td>
-                    <td>{{ r["Confianza AbuseIPDB (%)"] }}%</td>
-                    <td>{{ r["Último Visto"] }}</td>
-                    <td>{{ r["Primer Visto"] }}</td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
-        {% else %}
-        <p class="empty-msg">No hay datos disponibles. Subí un CSV para generar el Top 10.</p>
-        {% endif %}
+        {# --- Panel Global --- #}
+        <div class="cat-panel global {% if active_tab == 'global' %}active{% endif %}" id="panel-global">
+            <div class="info-box info-global">
+                <strong>TOP 10 Global — todas las categorías combinadas.</strong><br>
+                Score ponderado: High ×1.5 &nbsp;|&nbsp; Mid ×1.0 &nbsp;|&nbsp; Low ×0.7<br>
+                Una IP en varias categorías acumula el score de cada una. Solo IPs vistas en los últimos 21 días.
+            </div>
+
+            {% set resultados = tops['global'] %}
+            {% if resultados %}
+            <h2>Top 10 Global</h2>
+            <table>
+                <thead>
+                    <tr class="th-global">
+                        <th style="width:40px;">#</th>
+                        <th>IP</th>
+                        <th>Score Global</th>
+                        <th>Categorías</th>
+                        <th>Total Intentos Histórico</th>
+                        <th>Reportes AbuseIPDB</th>
+                        <th>Confianza AbuseIPDB (%)</th>
+                        <th>Último Visto</th>
+                        <th>Primer Visto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in resultados %}
+                    <tr>
+                        <td class="rank rank-global">{{ loop.index }}</td>
+                        <td><strong>{{ r["IP"] }}</strong></td>
+                        <td><span class="score-badge badge-global">{{ r["Score Global"] }}</span></td>
+                        <td>
+                            {% for part in r["Categorías"].split('/') %}
+                            <span class="cat-badge cat-badge-{{ part | lower }}">{{ part }}</span>
+                            {% endfor %}
+                        </td>
+                        <td>{{ r["Total Intentos Histórico"] }}</td>
+                        <td>{{ r["Reportes AbuseIPDB"] }}</td>
+                        <td>{{ r["Confianza AbuseIPDB (%)"] }}%</td>
+                        <td>{{ r["Último Visto"] }}</td>
+                        <td>{{ r["Primer Visto"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-msg">No hay datos globales aún. Subí al menos un CSV para generar este Top 10.</p>
+            {% endif %}
+        </div>
+
+        {# --- Paneles individuales --- #}
+        {% for cat, label, css in [('high','High','high'), ('mid','Mid','mid'), ('low','Low','low')] %}
+        <div class="cat-panel {{ css }} {% if active_tab == cat %}active{% endif %}" id="panel-{{ cat }}">
+            <div class="info-box info-{{ css }}">
+                <strong>TOP 10 — Alertas {{ label }}.</strong><br>
+                <strong>Prioridad (score combinado):</strong><br>
+                1: Actividad reciente — 9 o más intentos esta semana &nbsp;|&nbsp;
+                2: Reputación — 1500 o más reportes en AbuseIPDB &nbsp;|&nbsp;
+                3: Recencia — vista hace 7 días o menos<br>
+                <em>Solo se incluyen IPs vistas en los últimos 21 días.</em>
+            </div>
+
+            {% set resultados = tops[cat] %}
+            {% if resultados %}
+            <h2>Top 10 — {{ label }}</h2>
+            <table>
+                <thead>
+                    <tr class="th-{{ css }}">
+                        <th style="width:40px;">#</th>
+                        <th>IP</th>
+                        <th>Score</th>
+                        <th>Total Intentos Histórico</th>
+                        <th>Reportes AbuseIPDB</th>
+                        <th>Confianza AbuseIPDB (%)</th>
+                        <th>Último Visto</th>
+                        <th>Primer Visto</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for r in resultados %}
+                    <tr>
+                        <td class="rank rank-{{ css }}">{{ loop.index }}</td>
+                        <td><strong>{{ r["IP"] }}</strong></td>
+                        <td><span class="score-badge badge-{{ css }}">{{ r["Score"] }}</span></td>
+                        <td>{{ r["Total Intentos Histórico"] }}</td>
+                        <td>{{ r["Reportes AbuseIPDB"] }}</td>
+                        <td>{{ r["Confianza AbuseIPDB (%)"] }}%</td>
+                        <td>{{ r["Último Visto"] }}</td>
+                        <td>{{ r["Primer Visto"] }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <p class="empty-msg">No hay datos para alertas {{ label }}. Subí un CSV de tipo {{ label }} para generar este Top 10.</p>
+            {% endif %}
+        </div>
+        {% endfor %}
+
     </div>
     <script>
         document.body.classList.remove('hidden');
         console.log("IPs Maliciosas - API key AbuseIPDB v2026");
+
+        function switchTab(cat) {
+            document.querySelectorAll('.cat-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.cat-panel').forEach(p => p.classList.remove('active'));
+            document.querySelector('.cat-tab.' + cat).classList.add('active');
+            document.getElementById('panel-' + cat).classList.add('active');
+        }
     </script>
 </body>
 </html>

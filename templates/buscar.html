@@ -17,13 +17,20 @@
         .search-form input[type="text"]:focus { border-color:#005a8e; box-shadow:0 0 0 2px #cce4f3; }
         .search-form button { padding:9px 22px; background:#0073b1; color:#fff; border:none; border-radius:4px; font-size:15px; cursor:pointer; font-weight:500; }
         .search-form button:hover { background:#005a8e; }
-        .result-card { margin-top:28px; border:1px solid #d0e8f5; border-radius:6px; overflow:hidden; }
-        .result-card .card-header { background:#0073b1; color:#fff; padding:10px 16px; font-weight:700; font-size:15px; }
+        .not-found { margin-top:24px; padding:14px 16px; background:#fff3cd; border:1px solid #ffc107; border-radius:5px; color:#856404; }
+
+        .result-card { margin-top:20px; border-radius:6px; overflow:hidden; border:2px solid #ccc; }
+        .result-card.high { border-color:#dc3545; }
+        .result-card.mid  { border-color:#fd7e14; }
+        .result-card.low  { border-color:#198754; }
+        .card-header { padding:10px 16px; font-weight:700; font-size:15px; color:#fff; display:flex; justify-content:space-between; align-items:center; }
+        .card-header.high { background:#dc3545; }
+        .card-header.mid  { background:#fd7e14; }
+        .card-header.low  { background:#198754; }
         .result-card table { width:100%; border-collapse:collapse; }
         .result-card td { padding:10px 16px; border-bottom:1px solid #eee; font-size:14px; }
         .result-card td:first-child { font-weight:600; color:#444; width:220px; background:#f7fbff; }
         .result-card tr:last-child td { border-bottom:none; }
-        .not-found { margin-top:24px; padding:14px 16px; background:#fff3cd; border:1px solid #ffc107; border-radius:5px; color:#856404; }
     </style>
 </head>
 <body class="hidden">
@@ -46,17 +53,24 @@
         </form>
 
         {% if ip_query %}
-            {% if resultado %}
-            <div class="result-card">
-                <div class="card-header">{{ resultado.ip }}</div>
-                <table>
-                    <tr><td>Total Intentos Histórico</td><td>{{ resultado.total_intentos }}</td></tr>
-                    <tr><td>Reportes AbuseIPDB</td><td>{{ resultado.abuse_score }}</td></tr>
-                    <tr><td>Confianza AbuseIPDB (%)</td><td>{{ resultado.confidence_score }}%</td></tr>
-                    <tr><td>Primer Visto</td><td>{{ resultado.first_seen }}</td></tr>
-                    <tr><td>Último Visto</td><td>{{ resultado.last_seen }}</td></tr>
-                </table>
-            </div>
+            {% if resultados %}
+                {% for r in resultados %}
+                {% set cat = r.category %}
+                {% set labels = {'high': 'High', 'mid': 'Mid', 'low': 'Low'} %}
+                <div class="result-card {{ cat }}">
+                    <div class="card-header {{ cat }}">
+                        <span>{{ r.ip }}</span>
+                        <span>Alertas {{ labels[cat] }}</span>
+                    </div>
+                    <table>
+                        <tr><td>Total Intentos Histórico</td><td>{{ r.total_intentos }}</td></tr>
+                        <tr><td>Reportes AbuseIPDB</td><td>{{ r.abuse_score }}</td></tr>
+                        <tr><td>Confianza AbuseIPDB (%)</td><td>{{ r.confidence_score }}%</td></tr>
+                        <tr><td>Primer Visto</td><td>{{ r.first_seen }}</td></tr>
+                        <tr><td>Último Visto</td><td>{{ r.last_seen }}</td></tr>
+                    </table>
+                </div>
+                {% endfor %}
             {% else %}
             <div class="not-found">
                 La IP <strong>{{ ip_query }}</strong> no se encuentra en el historial.

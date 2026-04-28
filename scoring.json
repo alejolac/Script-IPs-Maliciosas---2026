@@ -14,5 +14,10 @@
   "recencia_dias": [
     {"max_days": 7, "points": 20},
     {"max_days": 21, "points": 10}
-  ]
+  ],
+  "category_multipliers": {
+    "high": 1.0,
+    "mid": 1.0,
+    "low": 1.0
+  }
 }

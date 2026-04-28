@@ -10,10 +10,8 @@
         .tab-nav a { padding:8px 20px; text-decoration:none; color:#0073b1; border:1px solid #0073b1; border-bottom:none; border-radius:4px 4px 0 0; font-weight:500; font-size:14px; }
         .tab-nav a.active { background:#0073b1; color:#fff; }
         .tab-nav a:hover:not(.active) { background:#e8f4fc; }
-        .processing-message {
-            display: none;
-            color: blue;
-        }
+        .processing-message { display:none; color:blue; }
+        .info-note { background:#e8f4fc; border-left:4px solid #0073b1; padding:10px 14px; margin:16px 0; border-radius:0 4px 4px 0; font-size:13px; color:#333; }
     </style>
 </head>
 <body class="hidden">
@@ -37,6 +35,10 @@
         </div>
         {% endif %}
         {% endwith %}
+
+        <div class="info-note">
+            La categoría (High / Mid / Low) se detecta automáticamente desde la columna <strong>Event risk level</strong> del CSV de Trend Micro.
+        </div>
         <form method="post" enctype="multipart/form-data" id="uploadForm">
             <div class="form-group">
                 <input type="file" name="file" id="file" class="inputfile" accept=".csv" required>
@@ -54,14 +56,12 @@
         console.log("IPs Maliciosas - API key AbuseIPDB v2026");
 
         document.getElementById('file').addEventListener('change', function() {
-            var fileName = this.files[0].name;
-            document.getElementById('file-name').textContent = 'Archivo seleccionado: ' + fileName;
+            document.getElementById('file-name').textContent = 'Archivo seleccionado: ' + this.files[0].name;
         });
-        
+
         document.getElementById('uploadForm').onsubmit = function() {
             document.getElementById('processingMessage').style.display = 'block';
         };
-
     </script>
 </body>
 </html>
